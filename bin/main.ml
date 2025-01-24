@@ -1,3 +1,4 @@
+open Types
 (*
   Negation := "~"
   Conjunction := "^"
@@ -9,10 +10,9 @@
 *)
 
 (* e -> lit
-   | ~lit
-   | ~(e)
+   | ~e
+   | e op e
    | (e)
-   | (e op e)
 
    lit -> var
     | True
@@ -23,8 +23,19 @@
     | =>
     | <=>
 *)
+
+let print_tree tree =
+  match tree with
+  | AND -> "AND"
+  | OR -> "OR"
+  | Implication -> "Implication"
+  | Biconditional -> "BiCond"
+
+
 let test_input = read_line ()
 (*let test_input = "test Input"*)
 
 let tokens = (Lexer.lexer test_input 0 [])
-let () = print_endline ("[" ^ (Lexer.print_tokens tokens )^ "]")
+
+
+let () = print_endline ("Tree: "^ print_tree (Parser.parse tokens) ^ "[" ^ (Lexer.print_tokens tokens )^ "]")
