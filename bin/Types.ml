@@ -1,18 +1,28 @@
-(* e -> lit
-   | ~e
-   | e op e
-   | (e)
+(* 
+   Conjunctive normal form
+   Atom -> Var 
+   | T
+   | F
 
    lit -> var
-    | True
-    | False
+    | Atom
+    | -Atom
   
-    op -> AND
-    | OR
-    | =>
-    | <=>
+    Formula -> Clause AND Formula
+    
+    Clause -> Lit
+    | Lit OR Clause
 *)
 type var = char
+
+type atom = 
+| Var of var
+| True
+| False
+
+type lit = 
+| Atom of atom
+| Not of atom
 
 type op = 
 | AND
@@ -20,8 +30,12 @@ type op =
 | Implication
 | Biconditional
 
+type clause =
+| Lit of lit
+| Clause of lit * op * clauses
+
+
+
 type formula =
-| Lit of var
-| Not of formula
-| Clause of formula * op * formula
-| SubFormula of formula
+| Clause of clause * op * formula
+| Formula of formula

@@ -1,18 +1,19 @@
 open Tokens
 open Types
-(* e -> lit
-   | ~e
-   | e op e
-   | (e)
+(* 
+   Conjunctive normal form
+   Atom -> Var 
+   | T
+   | F
 
    lit -> var
-    | True
-    | False
+    | Atom
+    | -Atom
   
-    op -> AND
-    | OR
-    | =>
-    | <=>
+    Formula -> Clause AND Formula
+    
+    Clause -> Lit
+    | Lit OR Clause
 *)
 
 let op_parse toks left_sub =
@@ -22,7 +23,7 @@ let op_parse toks left_sub =
         Clause(left_tree, AND, right_sub), left_over
   | Tok_Or :: t -> raise (Failure " OR Not implemented")
   | Tok_Eq :: Tok_Gt :: t -> raise (Failure " => Not implemented")
-  | Tok_Gt :: Tok_Eq :: Tok_Gt :: t -> raise (Failure " <=> Not implemented")
+  | Tok_Gt :: Tok_Eq :: Tok_Gt :: t -> raise (Failure " <=> Narser tot implemented")
   |_ -> raise (Failure "parse error, Illegal Operation")
 
 let rec parser toks = 
