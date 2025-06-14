@@ -15,27 +15,15 @@
 *)
 type var = char
 
-type atom = 
-| Var of var
-| True
-| False
-
-type lit = 
-| Atom of atom
-| Not of atom
-
-type op = 
-| AND
-| OR
-| Implication
-| Biconditional
-
-type clause =
-| Lit of lit
-| Clause of lit * op * clauses
-
-
+type atom =
+  | Var of var
+  | True
+  | False
 
 type formula =
-| Clause of clause * op * formula
-| Formula of formula
+  | Atom of atom
+  | Not of formula
+  | And of formula * formula
+  | Or of formula * formula
+  | Implies of formula * formula
+  | Iff of formula * formula
