@@ -1,29 +1,27 @@
 (* 
    Conjunctive normal form
-   Atom -> Var 
-   | T
-   | F
+  CNF       → Disjunct
+           | Disjunct ∧ CNF
 
-   lit -> var
-    | Atom
-    | -Atom
-  
-    Formula -> Clause AND Formula
-    
-    Clause -> Lit
-    | Lit OR Clause
+  Disjunct  → Literal
+           | Literal ∨ Disjunct
+
+  Literal   → Variable
+           | ¬ Literal
 *)
+
 type var = char
 
-type atom =
-  | Var of var
-  | True
-  | False
 
-type formula =
-  | Atom of atom
-  | Not of formula
-  | And of formula * formula
-  | Or of formula * formula
-  | Implies of formula * formula
-  | Iff of formula * formula
+type lit =
+  | Var of var
+  | Not of lit
+
+
+type disjunct = 
+  | Lit of lit
+  | Or of lit * disjunct
+
+type cnf = 
+  | Clause of disjunct
+  | And of disjunct * cnf
