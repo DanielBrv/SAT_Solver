@@ -1,5 +1,4 @@
 (executable
  (public_name SAT_Solver)
  (name main)
- (libraries SAT_Solver)
  (modules main Lexer Tokens Types Parser))
