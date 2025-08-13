@@ -46,5 +46,5 @@ let test_input = read_line ()
 
 let tokens = (Lexer.lexer test_input 0 [])
 
-
-let () = print_endline ("Tree: "^ print_cnf (Parser.parse tokens) ^ "[" ^ (Lexer.print_tokens tokens )^ "]")
+let () = print_endline ("[" ^ (Lexer.print_tokens tokens )^ "]")
+let () = print_endline ("Tree: "^ print_cnf (Parser.parse tokens) )
