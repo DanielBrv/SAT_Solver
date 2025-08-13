@@ -47,23 +47,21 @@ let lexer_help input pos =
     if pos >= length then raise (Failure "tokenizing failed")
     else char_to_token (String.get input pos)
 
-let rec lexer input pos tokens = 
+let lexer input =
   let length = String.length input in
-    if length = 0 then tokens
-    else if pos > length - 1 then tokens (* length is less than 0*)
-      
-    else if pos > length - 1 || pos < 0 then
-      raise (Failure ("Illegal lexing Pos: " ^ string_of_int pos)) (* length is less than 0*)
+  let rec aux pos acc =
+    if pos >= length then
+      List.rev acc
+    else if is_whitespace input.[pos] then
+      aux (pos + 1) acc
+    else
+      aux (pos + 1) (lexer_help input pos :: acc)
+  in
+  aux 0 []
 
-    else if is_whitespace (String.get input pos) then
-      lexer input (pos + 1) tokens @ [] (* Checks if current char is a white space and ignores it*)
 
-    else if length - 1 = pos then
-      tokens @ [lexer_help input pos] (* base case: if theres a single char in input*)
-
-    else lexer input (pos + 1) tokens @ [lexer_help input pos] (* recursive call*)
 
 let rec print_tokens tokens = 
   match tokens with 
-  | x :: y ->  (print_tokens y) ^ "" ^(string_of_token x) 
+  | x :: y -> (string_of_token x) ^ "" ^ (print_tokens y)
   | [] -> ""
