@@ -1,3 +1,4 @@
+
 open Types
 (*
   Negation := "~"
@@ -9,27 +10,35 @@ open Types
   Example Input : ((a ^ b) | (~(c | ~d) ^ (h) ))
 *)
 
-(* e -> lit
-   | ~e
-   | e op e
-   | (e)
+(* 
+   Conjunctive normal form
+  CNF       → Disjunct
+           | Disjunct ∧ CNF
 
-   lit -> var
-    | True
-    | False
-  
-    op -> AND
-    | OR
-    | =>
-    | <=>
+  Disjunct  → Literal
+           | Literal ∨ Disjunct
+
+  Literal   → Variable
+           | ¬ Literal
 *)
 
-let print_tree tree =
+
+let print_lit tree =
   match tree with
-  | AND -> "AND"
-  | OR -> "OR"
-  | Implication -> "Implication"
-  | Biconditional -> "BiCond"
+  | Not(Var(a)) -> "¬" ^ Printf.sprintf "%c" a
+  | Var(a)-> Printf.sprintf "%c" a
+  | _ -> raise (Failure "Printing Literal Failure")
+
+let rec print_disjunct tree =
+  match tree with
+  | Or(a,b) -> print_lit a ^ "∨" ^ print_disjunct b
+  | Lit(a) -> " " ^ print_lit a ^ " "
+
+
+let rec print_cnf tree =
+  match tree with
+  | And(a,b) -> "(" ^ print_disjunct a ^ ")" ^ " ∧ " ^ print_cnf b
+  | Clause(a) -> "(" ^ print_disjunct a ^ ")"
 
 
 let test_input = read_line ()
@@ -38,4 +47,4 @@ let test_input = read_line ()
 let tokens = (Lexer.lexer test_input 0 [])
 
 
-let () = print_endline ("Tree: "^ print_tree (Parser.parse tokens) ^ "[" ^ (Lexer.print_tokens tokens )^ "]")
+let () = print_endline ("Tree: "^ print_cnf (Parser.parse tokens) ^ "[" ^ (Lexer.print_tokens tokens )^ "]")
