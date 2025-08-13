@@ -30,8 +30,8 @@ let is_lexable_char char =
 
 let char_to_token t =
   match t with
-  | '(' -> Tok_RParen
-  | ')' -> Tok_LParen
+  | '(' -> Tok_LParen
+  | ')' -> Tok_RParen
   | '^' -> Tok_And
   | '|' -> Tok_Or
   | '~' -> Tok_Not
