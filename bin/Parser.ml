@@ -20,6 +20,8 @@ open Types
 let parse_literal toks = 
   match toks with
     | Tok_Var(x)::Tok_RParen::t  -> Var(x), t
+    | Tok_Not :: Tok_Var(x)::Tok_RParen::t -> Not(Var(x)), t
+    | Tok_Var(x)::t  -> Var(x), t
     | Tok_Not :: Tok_Var(x)::t -> Not(Var(x)), t
     | _ -> raise (Failure "Parsing literals failure")
 
@@ -32,13 +34,15 @@ let rec parse_disjunct toks =
                         Or(literal, right_side), left_over
     | _, _ -> raise (Failure "Parsing disjunction failure")
 let rec parse_cnf toks = 
-  let disjunction, left_over = parse_disjunct toks in 
-    match disjunction, left_over with
-    | Lit(_), [] -> Clause(disjunction), []
-    | Or(_,_), [] -> Clause(disjunction), []
-    | _, Tok_And::t -> let right_side, left_over = parse_cnf t in
+  match toks with
+  | Tok_LParen::t -> (let disjunction, left_over = parse_disjunct t in 
+      match disjunction, left_over with
+      | Lit(_), [] -> Clause(disjunction), []
+      | Or(_,_), [] -> Clause(disjunction), []
+      | _, Tok_And::t -> let right_side, left_over = parse_cnf t in
                         And(disjunction, right_side), left_over
-    | _, _ -> raise (Failure "Parsing cnf failure")
+      | _, _ -> raise (Failure "Parsing cnf failure"))
+  |_ -> raise (Failure "Parsing cnf failure: missing left parenthesis ")
 
 
 let parse toks =
