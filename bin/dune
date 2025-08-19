@@ -1,4 +1,10 @@
+(library
+ (name satsolver_lib)
+ (modules Lexer Tokens Types Parser))
+
+;; Executable with only main.ml
 (executable
  (public_name SAT_Solver)
  (name main)
- (modules main Lexer Tokens Types Parser))
+ (modules main)        ;; only main.ml here
+ (libraries satsolver_lib))

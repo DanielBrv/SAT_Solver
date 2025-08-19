@@ -21,6 +21,7 @@ type lit =
 type disjunct = 
   | Lit of lit
   | Or of lit * disjunct
+  (* Or should be "disjunct * disjunct"*)
 
 type cnf = 
   | Clause of disjunct
