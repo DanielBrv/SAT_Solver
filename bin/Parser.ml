@@ -27,12 +27,11 @@ let parse_literal toks =
 
 let rec parse_disjunct toks = 
   let literal, left_over = parse_literal toks in 
-    match literal, left_over with
-
-    | _, Tok_Or::t -> let right_side, left_over = parse_disjunct t in
+    match left_over with
+    | Tok_Or::t -> let right_side, left_over = parse_disjunct t in
                         Or(literal, right_side), left_over (* Parsing right side of Or()*)
-    | Var(_), t -> Lit(literal), t (* Returning Lit() *)
-    | Not(_), t -> Lit(literal), t
+    | t -> Lit(literal), t (* Returning Lit() *)
+
 
 let rec parse_cnf toks = 
   match toks with
