@@ -15,7 +15,7 @@ type var = char
 
 type lit =
   | Var of var
-  | Not of lit
+  | Not of var
 
 
 type disjunct = 

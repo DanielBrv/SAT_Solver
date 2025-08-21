@@ -1,15 +1,6 @@
 
 open Satsolver_lib.Types
 
-(*
-  Negation := "~"
-  Conjunction := "^"
-  Disjunction := "|"
-  Implication := "=>"   Not implemented
-  Bimplication := "<=>" Not implemented
-
-  Example Input : ((a ^ b) | (~(c | ~d) ^ (h) ))
-*)
 
 (* 
    Conjunctive normal form
@@ -26,9 +17,8 @@ open Satsolver_lib.Types
 
 let print_lit tree =
   match tree with
-  | Not(Var(a)) -> "¬" ^ Printf.sprintf "%c" a
+  | Not(a) -> "¬" ^ Printf.sprintf "%c" a
   | Var(a)-> Printf.sprintf "%c" a
-  | _ -> raise (Failure "Printing Literal Failure")
 
 let rec print_disjunct tree =
   match tree with

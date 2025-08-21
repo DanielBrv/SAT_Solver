@@ -16,7 +16,7 @@ open Types
 let parse_literal toks = 
   match toks with
     | Tok_Var(x)::t  -> Var(x), t                             (* Parsing variable *)
-    | Tok_Not :: Tok_Var(x)::t -> Not(Var(x)), t              (* Parsing negation *)
+    | Tok_Not :: Tok_Var(x)::t -> Not(x), t              (* Parsing negation *)
     | _ -> raise (Failure "Parsing literals failure")
 
 let rec parse_disjunct toks = 
