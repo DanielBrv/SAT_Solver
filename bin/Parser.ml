@@ -2,25 +2,19 @@ open Tokens
 open Types
 (* 
    Conjunctive normal form
-   Atom -> Var 
-   | T
-   | F
+  CNF       → Disjunct
+           | Disjunct ∧ CNF
 
-   lit -> var
-    | Atom
-    | -Atom
-  
-    Formula -> Clause AND Formula
-    
-    Clause -> Lit
-    | Lit OR Clause
+  Disjunct  → Literal
+           | Literal ∨ Disjunct
+
+  Literal   → Variable
+           | ¬ Literal
 *)
 
 
 let parse_literal toks = 
   match toks with
-    | Tok_Var(x)::Tok_RParen::t  -> Var(x), t                 (* Parsing last variable of clause *)
-    | Tok_Not :: Tok_Var(x)::Tok_RParen::t -> Not(Var(x)), t  (* Parsing last negation of clause *)
     | Tok_Var(x)::t  -> Var(x), t                             (* Parsing variable *)
     | Tok_Not :: Tok_Var(x)::t -> Not(Var(x)), t              (* Parsing negation *)
     | _ -> raise (Failure "Parsing literals failure")
@@ -37,10 +31,10 @@ let rec parse_cnf toks =
   match toks with
   | Tok_LParen::t -> (let disjunction, left_over = parse_disjunct t in
       (* Parsing inside of parenthesis*)   
-      match  left_over with
-      | [] -> Clause(disjunction), []  (* Returning Clause *)
-      | Tok_And::t -> let right_side, left_over = parse_cnf t in (* Parsing right side of And()*)
+      match left_over with
+      | Tok_RParen::Tok_And::t -> let right_side, left_over = parse_cnf t in (* Parsing right side of And()*)
                         And(disjunction, right_side), left_over
+      | Tok_RParen::[] -> Clause(disjunction), []  (* Returning Clause *)
       | _ -> raise (Failure "Parsing cnf failure"))
   |_ -> raise (Failure "Parsing cnf failure: missing left parenthesis ")
 
