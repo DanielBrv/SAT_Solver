@@ -17,12 +17,7 @@ type lit =
   | Var of var
   | Not of var
 
+type clause = lit list
 
-type disjunct = 
-  | Lit of lit
-  | Or of lit * disjunct
-  (* Or should be "disjunct * disjunct"*)
 
-type cnf = 
-  | Clause of disjunct
-  | And of disjunct * cnf
+type cnf = clause list

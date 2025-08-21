@@ -20,16 +20,18 @@ let print_lit tree =
   | Not(a) -> "¬" ^ Printf.sprintf "%c" a
   | Var(a)-> Printf.sprintf "%c" a
 
-let rec print_disjunct tree =
-  match tree with
-  | Or(a,b) -> " " ^ print_lit a ^ " ∨" ^ print_disjunct b
-  | Lit(a) -> " " ^ print_lit a ^ " "
+let rec print_clause clause =
+  match clause with
+  | lit :: [] -> print_lit lit
+  | lit :: t -> print_lit lit  ^ " ∨ " ^ print_clause t
+  | [] -> ""
 
 
-let rec print_cnf tree =
-  match tree with
-  | And(a,b) -> "(" ^ print_disjunct a ^ ")" ^ " ∧ " ^ print_cnf b
-  | Clause(a) -> "(" ^ print_disjunct a ^ ")"
+let rec print_cnf cnf =
+  match cnf with
+  | clause :: [] -> "(" ^ print_clause clause ^ ")"
+  | clause :: t -> "(" ^ print_clause clause ^ ")" ^ " ∧ " ^ print_cnf t
+  | [] -> "()"
 
 
 let test_input = read_line ()
