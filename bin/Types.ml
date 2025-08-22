@@ -10,12 +10,22 @@
            | ¬ Literal
 *)
 
+
+
 type var = char
 
+type assignment = (var * bool)
 
+
+type result =
+  | Sat of assignment
+  | Unsat
+  
 type lit =
   | Var of var
   | Not of var
+  | True
+  | False
 
 type clause = lit list
 
