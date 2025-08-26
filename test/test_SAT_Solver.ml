@@ -66,6 +66,11 @@ let test_parse_and_5 () =
   let tree = [[Var 'a'; Var 'b'];[Var 'c']] in
   assert (test = tree)
 
+let test_unit_prop_1 () = 
+  let test, _ = Satsolver_lib.Solver.unit_propagate [[Var 'd'; Var 'c'];[Var 'a'; Var 'b'];[Var 'b']] [] in
+  let result = [[Var 'd'; Var 'c']] in
+  assert (test = result)
+
 
 let () =
   test_parse_simple_clause_1 ();
@@ -84,4 +89,6 @@ let () =
   test_parse_and_3 ();
   test_parse_and_4 ();
   test_parse_and_5 ();
+
+  test_unit_prop_1 ();
   print_endline "All tests passed!"

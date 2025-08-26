@@ -16,16 +16,15 @@ type var = char
 
 type assignment = (var * bool)
 
+type model = assignment list 
 
 type result =
-  | Sat of assignment
+  | Sat of model
   | Unsat
-  
+
 type lit =
   | Var of var
   | Not of var
-  | True
-  | False
 
 type clause = lit list
 
