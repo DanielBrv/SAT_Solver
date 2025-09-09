@@ -13,7 +13,7 @@ open Satsolver_lib.Types
   Literal   → Variable
            | ¬ Literal
 *)
-
+(* Takes in filename and returns a list containing a strings for each line of the file  *)
 let read_lines filename =
   let ic = open_in filename in
   let rec loop acc =
@@ -26,7 +26,10 @@ let read_lines filename =
   in
   loop []
 ;;
+(* returns string representation of var*)
 let print_var var = "x" ^ string_of_int var
+
+(* prints out *)
 let print_lit tree =
   match tree with
   | Not(a) -> "¬" ^ print_var a 
@@ -39,7 +42,7 @@ let rec print_clause clause =
   | [] -> ""
 
 
-let rec print_cnf cnf =
+let rec print_cnf (cnf: cnf) =
   match cnf with
   | clause :: [] -> "(" ^ print_clause clause ^ ")"
   | clause :: t -> "(" ^ print_clause clause ^ ")" ^ " ∧ " ^ print_cnf t
@@ -64,16 +67,9 @@ let print_lines lines =
 
 let () = print_lines dimacs
 
-(*let test_input = read_line ()
-let test_input = "test Input"*)
-(*
-let tokens = (Satsolver_lib.Lexer.lexer test_input)
-
-let () = print_endline ("[" ^ (Satsolver_lib.Lexer.print_tokens tokens )^ "]")
-*)
 let cnf, _, _ = Satsolver_lib.Parser.parse_dimacs dimacs
 
 
-let () = print_endline ("Tree: "^ print_cnf cnf )
+let () = print_endline ("CNF: "^ print_cnf cnf )
 let result = Satsolver_lib.Solver.dpll cnf []
 let () = print_result result
