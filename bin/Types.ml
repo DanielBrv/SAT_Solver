@@ -12,7 +12,7 @@
 
 
 
-type var = char
+type var = int
 
 type assignment = (var * bool)
 
@@ -30,3 +30,4 @@ type clause = lit list
 
 
 type cnf = clause list
+type cnf_meta = (cnf * int * int)

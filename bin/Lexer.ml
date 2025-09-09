@@ -11,6 +11,7 @@ let is_whitespace char =
 (* Returns String of representation of a token*)
 let string_of_token t =
   match t with
+  | Tok_Neg -> "Tok_Neg"
   | Tok_RParen -> "Tok_RParen"
   | Tok_LParen -> "Tok_LParen"
   | Tok_And -> "Tok_And"
@@ -30,6 +31,7 @@ let is_lexable_char char =
 
 let char_to_token t =
   match t with
+  | '-' -> Tok_Neg
   | '(' -> Tok_LParen
   | ')' -> Tok_RParen
   | '&' -> Tok_And
@@ -58,6 +60,8 @@ let lexer input =
       aux (pos + 1) (lexer_help input pos :: acc)
   in
   aux 0 []
+
+
 
 
 

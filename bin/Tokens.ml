@@ -7,4 +7,5 @@ type token =
 | Tok_Eq
 | Tok_Lt
 | Tok_Gt
+| Tok_Neg
 | Tok_Var of char

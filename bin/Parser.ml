@@ -1,4 +1,4 @@
-open Tokens
+(* open Tokens *)
 open Types
 (* 
    Conjunctive normal form
@@ -12,42 +12,43 @@ open Types
            | ¬ Literal
 *)
 
+(* Creates a Lit from var, Negates Lit if var is negative.
+  Raises exception if var is 0 since 0 represents end of line *)
+let int_to_lit num = if num > 0 then Var(num)
+  else if num != 0 then Not(abs num)
+  else raise (Failure "Zero cannot be a variable")
 
-let parse_literal toks = 
-  match toks with
-    | Tok_Var(x)::t  -> Var(x), t                             (* Parsing variable *)
-    | Tok_Not :: Tok_Var(x)::t -> Not(x), t              (* Parsing negation *)
-    | _ -> raise (Failure "Parsing literals failure")
+(* Parse a single DIMACS clause line into a list of ints, ignoring the trailing 0 *)
+let parse_clause_line line =
+  line
+  |> Str.split (Str.regexp "[ \t\n\r]+")   (* split on any whitespace *)
+  |> List.map int_of_string
+  |> List.filter (fun x -> x <> 0)
+  |> List.map int_to_lit
 
-let rec parse_clause toks =
-  let literal, left_over = parse_literal toks in
-  match left_over with
-  | Tok_Or :: t ->
-      let rest_clause, remaining = parse_clause t in
-      (literal :: rest_clause, remaining)   (* prepend literal to the rest of the clause *)
-  | _ ->
-      ([literal], left_over)               (* single literal clause *)
+let parse_header line =
+  let tokens = String.split_on_char ' ' line |> List.filter ((<>) "") in
+  match tokens with
+  | ["p"; "cnf"; vars; clauses] ->
+      let num_vars = int_of_string vars in
+      let num_clauses = int_of_string clauses in
+      num_vars, num_clauses
+  | _ -> raise (Failure "Invalid Header")
 
-(* parse_cnf : token list -> cnf * token list *)
-let rec parse_cnf toks =
-  match toks with
-  | [] -> ([], [])  (* empty CNF *)
-  | Tok_LParen :: t ->
-      let clause, left_over = parse_clause t in (
-        match left_over with
-        | Tok_RParen :: Tok_And :: t ->
-          let rest_cnf, remaining = parse_cnf t in
-          (clause :: rest_cnf, remaining)  (* prepend clause to CNF list *)
-        | Tok_RParen :: t ->
-          ([clause], t)  (* last clause, return as singleton list *)
-        | _ -> raise (Failure "Parsing CNF failure: expected closing parenthesis or AND")
-        )
-  | _ -> raise (Failure "Parsing CNF failure: missing left parenthesis")
+let parse_clauses clause_lines num_clauses : cnf =
+  let rec aux lines count acc =
+    match lines, count with
+    | [], _ | _, 0 -> List.rev acc
+    | l :: rest, n ->
+        let clause = parse_clause_line l in
+        aux rest (n - 1) (clause :: acc)
+  in
+  aux clause_lines num_clauses []
+;;
 
-let parse toks =
-  if toks = [] then raise (Failure "Nothing to parse, Empty Input")
-  else
-    let parse_tree, left_over = parse_cnf toks in
-      if left_over = [] then (parse_tree)
-      else raise (Failure "Parsing incomplete, Left over tokens")
-      
+let parse_dimacs lines = 
+  match lines with
+  | [] -> raise (Failure "Invalid Header")
+  | header :: clauses -> let (num_vars, num_clauses) = parse_header header in 
+    (parse_clauses clauses num_clauses,  num_vars, num_clauses)
+
