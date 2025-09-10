@@ -7,4 +7,4 @@
  (public_name SAT_Solver)
  (name main)
  (modules main)        ;; only main.ml here
- (libraries str satsolver_lib))
+ (libraries yojson cohttp-lwt-unix lwt str satsolver_lib))
