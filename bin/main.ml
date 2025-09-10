@@ -1,72 +1,9 @@
 
-(*open Satsolver_lib.Types*)
+open Satsolver_lib.Types
 open Lwt.Infix
 open Cohttp_lwt_unix
 
-
 (*
-
-   curl -X POST http://localhost:8080/ \
-  -H "Content-Type: application/json" \
-  -d '{"vars": 4, "clauses": 3, "cnf": [[1, -3], [2, 3, -1], [4]]}'
-
-  *)
-let callback _conn req body =
-  let uri = Request.uri req in
-  match Request.meth req with
-  | `POST ->
-      Cohttp_lwt.Body.to_string body >>= fun body_str ->
-      let response =
-        try
-          let json = Yojson.Safe.from_string body_str in
-          let num_vars =
-            json |> Yojson.Safe.Util.member "vars" |> Yojson.Safe.Util.to_int
-          in
-          let num_clauses =
-            json |> Yojson.Safe.Util.member "clauses" |> Yojson.Safe.Util.to_int
-          in
-          let cnf =
-            json
-            |> Yojson.Safe.Util.member "cnf"
-            |> Yojson.Safe.Util.to_list
-            |> List.map (fun clause ->
-                 clause
-                 |> Yojson.Safe.Util.to_list
-                 |> List.map Yojson.Safe.Util.to_int)
-          in
-          Printf.sprintf "CNF received"
-
-        with
-        | Yojson.Json_error msg -> "Invalid JSON: " ^ msg ^ "\n"
-        | Yojson.Safe.Util.Type_error (msg, _) -> "Type error: " ^ msg ^ "\n"
-        | _ -> "Error parsing JSON\n"
-      in
-      Server.respond_string ~status:`OK ~body:response ()
-  | `GET ->
-      let path = Uri.path uri in
-      Server.respond_string ~status:`OK ~body:("GET request for " ^ path ^ "\n") ()
-  | _ ->
-      Server.respond_string ~status:`Method_not_allowed
-        ~body:"Only GET and POST allowed\n" ()
-
-let start_server () =
-  let mode = `TCP (`Port 8080) in
-  let config = Server.make ~callback () in
-  Server.create ~mode config
-
-let () = Lwt_main.run (start_server ())
-(* 
-   Conjunctive normal form
-  CNF       → Disjunct
-           | Disjunct ∧ CNF
-
-  Disjunct  → Literal
-           | Literal ∨ Disjunct
-
-  Literal   → Variable
-           | ¬ Literal
-*)
-(* Takes in filename and returns a list containing a strings for each line of the file  
 let read_lines filename =
   let ic = open_in filename in
   let rec loop acc =
@@ -79,8 +16,8 @@ let read_lines filename =
   in
   loop []
 ;;
-
-(* returns string representation of var*)
+*)
+(* returns string representation of var *)
 let print_var var = "x" ^ string_of_int var
 
 (* prints out *)
@@ -110,9 +47,75 @@ let rec print_model (model : model) : string =
 
 let print_result (result : result) =
   match result with
-  | Sat(model) -> (print_endline ("Sat" ^ print_model model))
-  | Unsat -> print_endline "Unsat"              
+  | Sat(model) ->  "Sat" ^ print_model model
+  | Unsat ->  "Unsat"    
+(*
 
+   curl -X POST http://localhost:8080/ \
+  -H "Content-Type: application/json" \
+  -d '{"vars": 4, "clauses": 3, "cnf": [[1, -3], [2, 3, -1], [4]]}'
+
+  *)
+let callback _conn req body =
+  let uri = Request.uri req in
+  match Request.meth req with
+  | `POST ->
+      Cohttp_lwt.Body.to_string body >>= fun body_str ->
+      let response =
+        try
+          let json = Yojson.Safe.from_string body_str in
+          let _ = (* num_vars *)
+            json |> Yojson.Safe.Util.member "vars" |> Yojson.Safe.Util.to_int
+          in
+          let num_clauses = 
+            json |> Yojson.Safe.Util.member "clauses" |> Yojson.Safe.Util.to_int
+          in
+          let cnf =
+            json
+            |> Yojson.Safe.Util.member "cnf"
+            |> Yojson.Safe.Util.to_list
+            |> List.map (fun clause ->
+                 clause
+                 |> Yojson.Safe.Util.to_list
+                 |> List.map Yojson.Safe.Util.to_int)
+          in
+          let cnfs = Satsolver_lib.Parser.parse_clauses cnf num_clauses in 
+            let _ = print_cnf cnfs in print_result (Satsolver_lib.Solver.dpll cnfs [])
+            
+        with
+        | Yojson.Json_error msg -> "Invalid JSON: " ^ msg
+        | Yojson.Safe.Util.Type_error (msg, _) -> "Type error: " ^ msg ^ "\n"
+        | _ -> "Error parsing JSON\n"
+      in
+      Server.respond_string ~status:`OK ~body:response ()
+  | `GET ->
+      let path = Uri.path uri in
+      Server.respond_string ~status:`OK ~body:("GET request for " ^ path ^ "\n") ()
+  | _ ->
+      Server.respond_string ~status:`Method_not_allowed
+        ~body:"Only GET and POST allowed\n" ()
+
+let start_server () =
+  let mode = `TCP (`Port 8080) in
+  let config = Server.make ~callback () in
+  Server.create ~mode config
+
+let () = Lwt_main.run (start_server ())
+(* 
+   Conjunctive normal form
+  CNF       → Disjunct
+           | Disjunct ∧ CNF
+
+  Disjunct  → Literal
+           | Literal ∨ Disjunct
+
+  Literal   → Variable
+           | ¬ Literal
+*)
+(* Takes in filename and returns a list containing a strings for each line of the file *)
+
+          
+(*
 let dimacs = read_lines "cnf.txt"
 
 let print_lines lines =
@@ -120,12 +123,11 @@ let print_lines lines =
 ;;
 
 let () = print_lines dimacs
-
-let cnf, _, _ = Satsolver_lib.Parser.parse_dimacs dimacs
-
-
-let () = print_endline ("CNF: "^ print_cnf cnf )
-let result = Satsolver_lib.Solver.dpll cnf []
-let () = print_result result
-
+let () = print_endline ("CNF: "^ print_cnf cnf  )
 *)
+
+
+
+
+
+
